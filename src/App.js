@@ -23,21 +23,22 @@ function App() {
   const saveTask = ()=>{
     // TODO: Salvar a tarefa
     let task = document.getElementById('contentTask');
-    
+    let idTask = new Date().getTime();
+
     setTasks([
       ...tasks,
       {
-        id: new Date().getTime(),
+        id: idTask,
         task: task.value,
         completed: false
       }
 
     ]);
     
-    localStorage.setItem('tasks', JSON.stringify([
+    localStorage.setItem(toString(idTask), JSON.stringify([
         ...tasks,
         {
-          id: new Date().getTime(),
+          id: idTask,
           task: task.value,
           completed: false
         }
@@ -45,10 +46,10 @@ function App() {
     setModal(false);
     //alert(task.value);
   }
-  const markCompleted = (id)=>{
+  const markCompleted = (id,opt)=>{
     let newTasks = tasks.filter((val)=>{
       if (val.id == id){
-        val.completed = true;
+        val.completed = opt;
       } 
 
       return val;
@@ -57,31 +58,25 @@ function App() {
     setTasks(newTasks);
     localStorage.setItem('tasks',JSON.stringify(newTasks));
   }
-  const unmarkCompleted = (id)=>{
-    let newTasks = tasks.filter((val)=>{
-      if (val.id == id){
-        val.completed = false;
-      } 
-
-      return val;
-    });
-
-    setTasks(newTasks);
-  }
   const removeTask = (id)=>{
+    console.log("A ser removido: " + id);
+    
     let removeTask = tasks.filter((val)=>{
-      if (val.id == id){
-        return localStorage.removeItem(id);
+      if (val.id == id) {
+        console.log(val.id);
       }
+      
+      localStorage.removeItem(val.id);
+      return val.id;
     });
     
     setTasks(removeTask);
   }
 
   useEffect(()=>{
-    if(localStorage.getItem('tasks') != undefined){
-      setTasks(JSON.parse(localStorage.getItem('tasks')));
-      console.log(localStorage.getItem('tasks'));
+    if(localStorage.getItem(toString(tasks)) != undefined){
+      setTasks(JSON.parse(localStorage.getItem(toString(tasks))));
+      console.log(localStorage.getItem(toString(tasks)));
     }
   },[])
 
@@ -116,7 +111,7 @@ function App() {
                   className='boxSingleTask' 
                   id={val.id} >
 
-                  <p onClick={()=> unmarkCompleted(val.id)} className="completed">
+                  <p onClick={()=> markCompleted(val.id,false)} className="completed">
                     {val.task}
                   </p>
                   <button onClick={()=>{removeTask(val.id)}}>X</button>
@@ -131,7 +126,7 @@ function App() {
                   id={val.id}
                 >
 
-                  <p onClick={()=> markCompleted(val.id)} className='toDo'>
+                  <p onClick={()=> markCompleted(val.id,true)} className='toDo'>
                     {val.task}
                   </p>
                   <button onClick={()=>removeTask(val.id)}>X</button>
